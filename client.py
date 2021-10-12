@@ -74,6 +74,8 @@ def main():
     run = True
     clock = pygame.time.Clock()
 
+    test_sound = pygame.mixer.Sound('arcade-rising.wav')
+
     while run:
         clock.tick(60)
 
@@ -126,6 +128,11 @@ def main():
                             entered_name = True
                         elif len(nickname) == 21 and nickname[-1:] != '\r':
                             nickname = nickname[:-1]
+            else:
+                if event.type == pygame.KEYDOWN:
+                    pressed = pygame.key.get_pressed()
+                    if pressed[pygame.K_SPACE]:
+                        pygame.mixer.Sound.play(test_sound)
 
         # Handle pressed keys
         if logged_in and run:
