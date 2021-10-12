@@ -45,7 +45,6 @@ class Maenneltest:
     def add_player(self, nickname):
         if self.players.get(nickname):
             return False
-        # TODO: Randomized or fixed point?
         x = randint(10, self.win_width - 50)
         y = randint(10, self.win_height - 50)
         self.players[nickname] = Player(nickname, x, y)
