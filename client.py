@@ -126,7 +126,7 @@ def main():
                             nickname = nickname[:-1]
 
         # Handle pressed keys
-        if logged_in:
+        if logged_in and run:
             pressed = pygame.key.get_pressed()
             acc_x, acc_y = get_move(pressed)
             send(client, 'move {} {} {}'.format(nickname, acc_x, acc_y))
