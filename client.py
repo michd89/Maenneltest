@@ -3,7 +3,7 @@ import traceback
 
 import pygame
 
-from graphics import redraw_game_screen, WIDTH, HEIGHT, redraw_login_menu
+from graphics import redraw_game_screen, redraw_login_menu
 from utils import connect_to_server, send
 
 
