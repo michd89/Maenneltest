@@ -3,7 +3,7 @@ import traceback
 
 import pygame
 
-from graphics import redraw_game_screen, WIDTH, HEIGHT
+from graphics import redraw_game_screen, WIDTH, HEIGHT, redraw_login_menu
 from utils import connect_to_server, send
 
 
@@ -63,19 +63,10 @@ def get_move(pressed):
 
 def main():
     client = None
-
-    # Test data
-    host = 'localhost'
-    entered_host = True
-    nickname = 'test'
-    entered_name = True
-
-    # Actual initial data
-    # host = ''
-    # entered_host = False
-    # nickname = ''
-    # entered_name = False
-
+    host = ''
+    entered_host = False
+    nickname = ''
+    entered_name = False
     logged_in = False
     game = None  # For suppressing warning
     run = True
@@ -108,12 +99,34 @@ def main():
                 break
 
         # Handle user input
+        # Handle typing
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 run = False
 
-        if run:
+            if not logged_in:
+                if event.type == pygame.KEYDOWN:
+                    if not entered_host:
+                        host = handle_line_typing(event, host)
+                        if host[-1:] == '\r':
+                            host = host[:-1]
+                            entered_host = True
+                            if not host:
+                                host = 'localhost'
+                    elif not entered_name:
+                        nickname = handle_line_typing(event, nickname, 21)
+                        # Confirm entry
+                        if len(nickname) <= 21 and nickname[-1:] == '\r':
+                            nickname = nickname[:-1]
+                            if not nickname:
+                                nickname = 'Namenloser Gust'
+                            entered_name = True
+                        elif len(nickname) == 21 and nickname[-1:] != '\r':
+                            nickname = nickname[:-1]
+
+        # Handle pressed keys
+        if logged_in:
             pressed = pygame.key.get_pressed()
             acc_x, acc_y = get_move(pressed)
             send(client, 'move {} {} {}'.format(nickname, acc_x, acc_y))
