@@ -5,7 +5,7 @@ HEIGHT = 900
 BACKGROUND_COLOR = (200, 200, 200)
 BLACK = (0, 0, 0)
 pygame.font.init()
-font_normal = pygame.font.SysFont("courier", 18, bold=True)
+font_normal = pygame.font.SysFont("courier", 18, bold=False)
 font_bold = pygame.font.SysFont("courier", 18, bold=True)
 win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Männeltest ihr Gusten")
@@ -51,7 +51,7 @@ def redraw_game_screen(game):
 
     for nickname, player in game.players.items():
         pygame.draw.rect(win, player.color, (player.pos_x, player.pos_y, player.size, player.size), 0)
-        name = font_normal.render(nickname, True, player.color)
+        name = font_bold.render(nickname, True, player.color)
         win.blit(name, (player.pos_x + player.size // 2 - name.get_width() // 2, player.pos_y - 20))
 
     pygame.display.update()
