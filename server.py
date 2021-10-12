@@ -27,7 +27,11 @@ def handling_client_thread_function(client):
                 break
 
             if message.startswith('move'):
-                _, nickname, acc_x, acc_y = message.split()
+                msg_list = message.split()
+                acc_y = msg_list.pop()
+                acc_x = msg_list.pop()
+                _ = msg_list.pop(0)  # 'move'
+                nickname = ' '.join(msg_list)
                 game.move_player(nickname, acc_x, acc_y)
 
             send_game(client, game)
