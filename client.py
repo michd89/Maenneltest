@@ -3,6 +3,7 @@ import traceback
 
 import pygame
 
+from graphics import redraw_game_screen, WIDTH, HEIGHT
 from utils import connect_to_server, send
 
 
@@ -29,6 +30,35 @@ def handle_line_typing(event, text_in, max_len=None):
             if ch == '/':  # Catch '-' button input when executed as exe
                 text_out = text_out + '-'
     return text_out
+
+
+def get_move(pressed):
+    acc_x = 0
+    acc_y = 0
+    if pressed[pygame.K_RIGHT]:
+        acc_x += 1
+    if pressed[pygame.K_LEFT]:
+        acc_x -= 1
+    if pressed[pygame.K_UP]:
+        acc_y -= 1
+    if pressed[pygame.K_DOWN]:
+        acc_y += 1
+
+    if acc_x == -1:
+        acc_x = '-'
+    elif acc_x == 0:
+        acc_x = '.'
+    elif acc_x == 1:
+        acc_x = '+'
+
+    if acc_y == -1:
+        acc_y = '-'
+    elif acc_y == 0:
+        acc_y = '.'
+    elif acc_y == 1:
+        acc_y = '+'
+
+    return acc_x, acc_y
 
 
 def main():
@@ -82,12 +112,18 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 run = False
-            # etc.
+
+        if run:
+            pressed = pygame.key.get_pressed()
+            acc_x, acc_y = get_move(pressed)
+            send(client, 'move {} {} {}'.format(nickname, acc_x, acc_y))
 
         # Graphics
         if run:
-            # ...
-            pass
+            if not logged_in:
+                redraw_login_menu(host, nickname, entered_host, entered_name)
+            else:
+                redraw_game_screen(game)
 
 
 def my_except_hook(exctype, value, tb):

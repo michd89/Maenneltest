@@ -1,14 +1,23 @@
 import socket
 import threading
 
+from maenneltest import Maenneltest
 from utils import recv_msg, send_msg, send_game
+
+game = Maenneltest()
 
 
 # Sub thread: Handles messages from certain client
 def handling_client_thread_function(client):
     nickname = recv_msg(client)
-    print('{nickname} ist dem Spiel beigetreten'.format(nickname=nickname))
-    send_msg(client, 'OK')
+    if game.add_player(nickname):
+        print('{nickname} ist dem Spiel beigetreten'.format(nickname=nickname))
+        send_msg(client, 'OK')
+    else:
+        print('{nickname} gibts schon'.format(nickname=nickname))
+        send_msg(client, 'NOPE')
+        client.close()
+        return
 
     while True:
         try:
@@ -17,15 +26,19 @@ def handling_client_thread_function(client):
             if not message:  # Player left game
                 break
 
-            # compute message
+            if message.startswith('move'):
+                _, nickname, acc_x, acc_y = message.split()
+                game.move_player(nickname, acc_x, acc_y)
 
-            # Send game or msg
+            send_game(client, game)
         except Exception as exc:
             # Remove and close client
             client.close()
+            game.delete_player(nickname)
             print('{nickname} hat das Spiel verlassen (exc)'.format(nickname=nickname))
             print(exc)
             break
+    game.delete_player(nickname)
     print('{nickname} hat das Spiel verlassen (normal)'.format(nickname=nickname))
 
 
