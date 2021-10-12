@@ -62,6 +62,8 @@ def get_move(pressed):
 
 
 def main():
+    pygame.init()
+
     client = None
     host = ''
     entered_host = False
