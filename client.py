@@ -1,3 +1,4 @@
+import os
 import sys
 import traceback
 
@@ -78,8 +79,20 @@ def main():
     clock = pygame.time.Clock()
 
     pygame.mixer.set_num_channels(100)
+    sounds_dir = 'sounds'
+    sound_name = 'arcade-rising.wav'
     # TODO WICHTIG: https://stackoverflow.com/a/41989994
-    test_sound = pygame.mixer.Sound('arcade-rising.wav')
+    # Und: https://stackoverflow.com/a/42615559
+    if getattr(sys, 'frozen', False):  # exe
+        path = sys.executable  # with client.exe as last entry
+        path_list = path.split(os.sep)
+        if path_list[-1:] != os.sep:  # Since C: is valid as well as C:\
+            path_list[0] += os.sep
+        path = os.path.join(*path_list[:-2], sounds_dir, sound_name)  # remove "exes" and client.exe
+        print(path)
+        test_sound = pygame.mixer.Sound(path)
+    else:  # py
+        test_sound = pygame.mixer.Sound(os.path.join(sounds_dir, sound_name))
 
     while run:
         clock.tick(60)
