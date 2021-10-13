@@ -77,6 +77,7 @@ def main():
     run = True
     clock = pygame.time.Clock()
 
+    pygame.mixer.set_num_channels(100)
     # TODO WICHTIG: https://stackoverflow.com/a/41989994
     test_sound = pygame.mixer.Sound('arcade-rising.wav')
 
