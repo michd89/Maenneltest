@@ -62,6 +62,8 @@ def get_move(pressed):
 
 
 def main():
+    # TODO WICHTIG: https://stackoverflow.com/a/18513365
+    pygame.mixer.pre_init(44100, -16, 1, 512)
     pygame.init()
 
     client = None
@@ -74,6 +76,7 @@ def main():
     run = True
     clock = pygame.time.Clock()
 
+    # TODO WICHTIG: https://stackoverflow.com/a/41989994
     test_sound = pygame.mixer.Sound('arcade-rising.wav')
 
     while run:
