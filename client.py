@@ -63,6 +63,7 @@ def get_move(pressed):
 
 def main():
     # TODO WICHTIG: https://stackoverflow.com/a/18513365
+    # Kann nur maximal acht Sounds gleichzeitig
     pygame.mixer.pre_init(44100, -16, 1, 512)
     pygame.init()
 
