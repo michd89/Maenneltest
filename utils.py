@@ -42,6 +42,7 @@ def connect_to_server(host, nick):
 def send(client, data):
     try:
         send_msg(client, data)
-        return recv_game(client)
+        if data.startswith('get'):
+            return recv_game(client)
     except socket.error as e:
         print(e)

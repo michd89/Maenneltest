@@ -26,6 +26,8 @@ def handling_client_thread_function(client):
             if not message:  # Player left game
                 break
 
+            if message.startswith('get'):
+                send_game(client, game)
             if message.startswith('move'):
                 msg_list = message.split()
                 acc_y = msg_list.pop()
@@ -34,7 +36,6 @@ def handling_client_thread_function(client):
                 nickname = ' '.join(msg_list)
                 game.move_player(nickname, acc_x, acc_y)
 
-            send_game(client, game)
         except Exception as exc:
             # Remove and close client
             client.close()
