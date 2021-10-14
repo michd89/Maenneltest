@@ -149,13 +149,13 @@ def main():
             else:
                 if event.type == pygame.KEYDOWN:
                     pressed = pygame.key.get_pressed()
-                    if pressed[pygame.K_SPACE]:
+                    if pressed[pygame.K_RETURN]:
                         if not key_pressed:
                             pygame.mixer.Sound.play(test_sound)
                             key_pressed = True
                 if event.type == pygame.KEYUP:
                     pressed = pygame.key.get_pressed()
-                    if not pressed[pygame.K_SPACE]:
+                    if not pressed[pygame.K_RETURN]:
                         key_pressed = False
 
         # Handle pressed keys
