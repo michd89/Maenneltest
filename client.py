@@ -75,7 +75,7 @@ def main():
     logged_in = False
     game = None  # For suppressing warning
     run = True
-    key_pressed = False
+    spacebar_pressed = False
     clock = pygame.time.Clock()
 
     pygame.mixer.set_num_channels(100)
@@ -101,12 +101,10 @@ def main():
             client = connect_to_server(host, nickname)
             logged_in = True
             if client == 'NOPE':
-                # Fehlermeldung etc.
                 print('NOPE')
                 pygame.quit()
                 break
             if not client:
-                # Fehlermeldung etc.
                 print('No client')
                 pygame.quit()
                 break
@@ -150,13 +148,13 @@ def main():
                 if event.type == pygame.KEYDOWN:
                     pressed = pygame.key.get_pressed()
                     if pressed[pygame.K_RETURN]:
-                        if not key_pressed:
+                        if not spacebar_pressed:
                             pygame.mixer.Sound.play(test_sound)
-                            key_pressed = True
+                            spacebar_pressed = True
                 if event.type == pygame.KEYUP:
                     pressed = pygame.key.get_pressed()
                     if not pressed[pygame.K_RETURN]:
-                        key_pressed = False
+                        spacebar_pressed = False
 
         # Handle pressed keys
         if logged_in and run:
