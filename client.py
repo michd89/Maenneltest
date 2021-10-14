@@ -64,7 +64,6 @@ def get_move(pressed):
 
 def main():
     # TODO WICHTIG: https://stackoverflow.com/a/18513365
-    # Kann nur maximal acht Sounds gleichzeitig
     pygame.mixer.pre_init(44100, -16, 1, 512)
     pygame.init()
 
@@ -76,6 +75,7 @@ def main():
     logged_in = False
     game = None  # For suppressing warning
     run = True
+    key_pressed = False
     clock = pygame.time.Clock()
 
     pygame.mixer.set_num_channels(100)
@@ -150,7 +150,13 @@ def main():
                 if event.type == pygame.KEYDOWN:
                     pressed = pygame.key.get_pressed()
                     if pressed[pygame.K_SPACE]:
-                        pygame.mixer.Sound.play(test_sound)
+                        if not key_pressed:
+                            pygame.mixer.Sound.play(test_sound)
+                            key_pressed = True
+                if event.type == pygame.KEYUP:
+                    pressed = pygame.key.get_pressed()
+                    if not pressed[pygame.K_SPACE]:
+                        key_pressed = False
 
         # Handle pressed keys
         if logged_in and run:
