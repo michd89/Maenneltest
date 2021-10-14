@@ -1,5 +1,7 @@
 from random import randint
 
+from global_values import WIDTH, HEIGHT
+
 
 class Player:
     def __init__(self, nickname, pos_x, pos_y):
@@ -33,9 +35,8 @@ class Maenneltest:
     def __init__(self):
         self.ready = False
         self.players = dict()
-        # Hard code it here for simplicity
-        self.win_width = 900
-        self.win_height = 900
+        self.win_width = WIDTH
+        self.win_height = HEIGHT
 
     def move_player(self, nickname, acc_x, acc_y):
         player = self.players.get(nickname)

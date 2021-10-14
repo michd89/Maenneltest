@@ -1,7 +1,7 @@
 import pygame
 
-WIDTH = 900
-HEIGHT = 900
+from global_values import WIDTH, HEIGHT
+
 BACKGROUND_COLOR = (200, 200, 200)
 BLACK = (0, 0, 0)
 pygame.font.init()

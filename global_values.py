@@ -1,0 +1,2 @@
+WIDTH = 900
+HEIGHT = 900
