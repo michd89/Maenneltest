@@ -75,7 +75,9 @@ def main():
     logged_in = False
     game = None  # For suppressing warning
     run = True
-    spacebar_pressed = False
+    enter_pressed = False
+    get_interval = 6
+    game_step = get_interval
     clock = pygame.time.Clock()
 
     pygame.mixer.set_num_channels(100)
@@ -112,7 +114,18 @@ def main():
         # Get current game state before handling user input
         if logged_in:
             try:
-                game = send(client, 'get')
+                # print(game_step)
+                # print('get')
+                if game_step == get_interval:
+                    # Update game state from server
+                    game = send(client, 'get')
+                    game_step = 1
+                    # print('gekriegt')
+                else:
+                    # print('kein get')
+                    # Interpolate positions for smoother movement
+                    game.update_players()  # Locally
+                    game_step += 1
             except Exception as e:
                 print("Couldn't get game")
                 print(e)
@@ -134,6 +147,8 @@ def main():
                             entered_host = True
                             if not host:
                                 host = 'localhost'
+                            elif host == ' ':
+                                host = 'ip'
                     elif not entered_name:
                         nickname = handle_line_typing(event, nickname, 21)
                         # Confirm entry
@@ -148,18 +163,27 @@ def main():
                 if event.type == pygame.KEYDOWN:
                     pressed = pygame.key.get_pressed()
                     if pressed[pygame.K_RETURN]:
-                        if not spacebar_pressed:
-                            pygame.mixer.Sound.play(test_sound)
-                            spacebar_pressed = True
+                        if not enter_pressed:
+                            pygame.quit()
+                            exit()
+                            # pygame.mixer.Sound.play(test_sound)
+                            enter_pressed = True
                 if event.type == pygame.KEYUP:
                     pressed = pygame.key.get_pressed()
                     if not pressed[pygame.K_RETURN]:
-                        spacebar_pressed = False
+                        enter_pressed = False
 
         # Handle pressed keys
         if logged_in and run:
             pressed = pygame.key.get_pressed()
             acc_x, acc_y = get_move(pressed)
+            # Hier noch ein lokales Update der rate-Werte?
+            # game.move_player(nickname, acc_x, acc_y)
+            # game.update_players()
+            if game_step != get_interval:
+                game.players[nickname].rate_x = acc_x
+                game.players[nickname].rate_y = acc_y
+
             send(client, 'move {} {} {}'.format(nickname, acc_x, acc_y))
 
         # Graphics
@@ -167,6 +191,7 @@ def main():
             if not logged_in:
                 redraw_login_menu(host, nickname, entered_host, entered_name)
             else:
+                print(game.players.get(nickname).pos_y)
                 redraw_game_screen(game)
 
 

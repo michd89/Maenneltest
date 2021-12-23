@@ -24,9 +24,12 @@ def handling_client_thread_function(client):
             message = recv_msg(client)
 
             if not message:  # Player left game
+                print('ende')
                 break
+            print('Nachricht: ' + message)
 
             if message.startswith('get'):
+                print('do get')
                 send_game(client, game)
             if message.startswith('move'):
                 msg_list = message.split()
@@ -35,6 +38,7 @@ def handling_client_thread_function(client):
                 _ = msg_list.pop(0)  # 'move'
                 nickname = ' '.join(msg_list)
                 game.move_player(nickname, acc_x, acc_y)
+                send_msg(client, 'K')  # Dummy message for synchronization
 
         except Exception as exc:
             # Remove and close client
