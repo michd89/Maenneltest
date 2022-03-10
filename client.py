@@ -5,7 +5,7 @@ import traceback
 import pygame
 
 from graphics import redraw_game_screen, redraw_login_menu
-from utils import connect_to_server, send
+from utils import join_game, send
 
 
 # TODO: Find solution for handling special characters and keys when executed as exe
@@ -67,8 +67,9 @@ def main():
     pygame.mixer.pre_init(44100, -16, 1, 512)
     pygame.init()
 
-    client = None
+    client_sock = None
     host = ''
+    port = 50000
     entered_host = False
     nickname = ''
     entered_name = False
@@ -100,13 +101,13 @@ def main():
         clock.tick(60)
 
         if entered_host and entered_name and not logged_in:
-            client = connect_to_server(host, nickname)
+            client_sock = join_game((host, port), nickname)
             logged_in = True
-            if client == 'NOPE':
+            if client_sock == 'NOPE':
                 print('NOPE')
                 pygame.quit()
                 break
-            if not client:
+            if not client_sock:
                 print('No client')
                 pygame.quit()
                 break
@@ -114,15 +115,11 @@ def main():
         # Get current game state before handling user input
         if logged_in:
             try:
-                # print(game_step)
-                # print('get')
                 if game_step == get_interval:
                     # Update game state from server
-                    game = send(client, 'get')
+                    game = send(client_sock, (host, port), 'GET')
                     game_step = 1
-                    # print('gekriegt')
                 else:
-                    # print('kein get')
                     # Interpolate positions for smoother movement
                     game.update_players()  # Locally
                     game_step += 1
@@ -184,7 +181,7 @@ def main():
                 game.players[nickname].rate_x = acc_x
                 game.players[nickname].rate_y = acc_y
 
-            send(client, 'move {} {} {}'.format(nickname, acc_x, acc_y))
+            send(client_sock, (host, port), 'MOVE {} {} {}'.format(nickname, acc_x, acc_y))
 
         # Graphics
         if run:

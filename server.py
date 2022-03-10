@@ -1,75 +1,44 @@
 import socket
-import threading
 
 from maenneltest import Maenneltest
 from utils import recv_msg, send_msg, send_game
 
-game = Maenneltest()
 
-
-# Sub thread: Handles messages from certain client
-def handling_client_thread_function(client):
-    nickname = recv_msg(client)
-    if game.add_player(nickname):
-        print('{nickname} ist dem Spiel beigetreten'.format(nickname=nickname))
-        send_msg(client, 'OK')
-    else:
-        print('{nickname} gibts schon'.format(nickname=nickname))
-        send_msg(client, 'NOPE')
-        client.close()
-        return
-
-    while True:
-        try:
-            message = recv_msg(client)
-
-            if not message:  # Player left game
-                print('ende')
-                break
-            print('Nachricht: ' + message)
-
-            if message.startswith('get'):
-                print('do get')
-                send_game(client, game)
-            if message.startswith('move'):
-                msg_list = message.split()
-                acc_y = msg_list.pop()
-                acc_x = msg_list.pop()
-                _ = msg_list.pop(0)  # 'move'
-                nickname = ' '.join(msg_list)
-                game.move_player(nickname, acc_x, acc_y)
-                send_msg(client, 'K')  # Dummy message for synchronization
-
-        except Exception as exc:
-            # Remove and close client
-            client.close()
-            game.delete_player(nickname)
-            print('{nickname} hat das Spiel verlassen (exc)'.format(nickname=nickname))
-            print(exc)
-            break
-    game.delete_player(nickname)
-    print('{nickname} hat das Spiel verlassen (normal)'.format(nickname=nickname))
-
-
-# Main thread: Receiving / Listening function
-def receive():
+def run_server():
     host = '0.0.0.0'
     port = 50000
 
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind((host, port))
-    server.listen()
+    game = Maenneltest()
+
+    server_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server_sock.bind((host, port))
     print('Server horcht auf {host}:{port} ...'.format(host=host, port=port))
 
+    # Process incoming packages
     while True:
-        # Accept connection
-        client, address = server.accept()
-        print("Verbunden mit {}".format(str(address)))
+        try:
+            message, addr = recv_msg(server_sock)
 
-        # Start handling thread for client
-        thread = threading.Thread(target=handling_client_thread_function, args=([client]))
-        thread.start()
+            if message.startswith('JOIN'):
+                nickname = message.split(' ', 1)[1]
+                if game.add_player(nickname):
+                    print('{nickname} ist dem Spiel beigetreten'.format(nickname=nickname))
+                    send_msg(server_sock, addr, 'OK')
+                else:
+                    print('{nickname} gibts schon'.format(nickname=nickname))
+                    send_msg(server_sock, addr, 'NOPE')
+            elif message.startswith('GET'):
+                send_game(server_sock, addr, game)
+            elif message.startswith('MOVE'):
+                msg_list = message.split()
+                acc_y = msg_list.pop()
+                acc_x = msg_list.pop()
+                msg_list.pop(0)  # 'move'
+                nickname = ' '.join(msg_list)
+                game.move_player(nickname, acc_x, acc_y)
+        except socket.error:  # Nothing received
+            pass
 
 
 if __name__ == '__main__':
-    receive()
+    run_server()
