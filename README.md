@@ -1,3 +1,9 @@
+https://gamedev.stackexchange.com/questions/126481/how-to-organize-messages-queue-in-a-fast-paced-multiplayer-game?rq=1
+
+https://gamedev.stackexchange.com/questions/169080/inputs-in-realtime-multiplayer-game?rq=1
+
+https://gamedev.stackexchange.com/questions/151387/multiplayer-client-server-architecture-sending-input?rq=1
+
 Ressources:
 
 https://gamedev.stackexchange.com/questions/48227/smooth-movement-pygame
