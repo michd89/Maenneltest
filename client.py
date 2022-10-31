@@ -45,20 +45,6 @@ def get_move(pressed):
     if pressed[pygame.K_DOWN]:
         acc_y += 1
 
-    if acc_x == -1:
-        acc_x = '-'
-    elif acc_x == 0:
-        acc_x = '.'
-    elif acc_x == 1:
-        acc_x = '+'
-
-    if acc_y == -1:
-        acc_y = '-'
-    elif acc_y == 0:
-        acc_y = '.'
-    elif acc_y == 1:
-        acc_y = '+'
-
     return acc_x, acc_y
 
 

@@ -7,30 +7,30 @@ class Player:
     def __init__(self, nickname, pos_x, pos_y):
         self.nickname = nickname
         self.color = (0, 0, 0)
-        self.rate_x = '.'
-        self.rate_y = '.'
+        self.rate_x = 0
+        self.rate_y = 0
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.speed = 3
         self.size = 50
 
     def move(self, acc_x, acc_y, win_width, win_height):
-        self.rate_x = acc_x
-        self.rate_y = acc_y
-        if self.rate_x == '+':  # right
-            self.pos_x += self.speed
+        self.rate_x = acc_x * self.speed
+        self.rate_y = acc_y * self.speed
+        if self.rate_x >= 0:  # right
+            self.pos_x += self.rate_x
             if self.pos_x + self.size > win_width:
                 self.pos_x = win_width - self.size
-        elif self.rate_x == '-':  # left
-            self.pos_x -= self.speed
+        else:  # left
+            self.pos_x -= self.rate_x
             if self.pos_x < 0:
                 self.pos_x = 0
-        if self.rate_y == '+':  # down
-            self.pos_y += self.speed
+        if self.rate_y >= 0:  # down
+            self.pos_y += self.rate_y
             if self.pos_y + self.size > win_height:
                 self.pos_y = win_height - self.size
-        if self.rate_y == '-':  # up
-            self.pos_y -= self.speed
+        else:  # up
+            self.pos_y -= self.rate_y
             if self.pos_y < 0:
                 self.pos_y = 0
 
