@@ -42,13 +42,13 @@ class Maenneltest:
         self.win_width = WIDTH
         self.win_height = HEIGHT
 
-    def move_player(self, info, acc_x, acc_y):
+    def move_player(self, info, step_time):
         if isinstance(info, str):
             player = self.players.get(info)
         else:
             player = info
         if player:
-            player.move(acc_x, acc_y, self.win_width, self.win_height)
+            player.move(step_time, self.win_width, self.win_height)
 
     def update_players(self):
         for _, player in self.players.items():
