@@ -14,9 +14,9 @@ class Player:
         self.speed = 3
         self.size = 50
 
-    def move(self, acc_x, acc_y, win_width, win_height):
-        self.rate_x = acc_x * self.speed
-        self.rate_y = acc_y * self.speed
+    def move(self, step_time, win_width, win_height):
+        self.rate_x = step_time * self.speed
+        self.rate_y = step_time * self.speed
         if self.rate_x >= 0:  # right
             self.pos_x += self.rate_x
             if self.pos_x + self.size > win_width:
