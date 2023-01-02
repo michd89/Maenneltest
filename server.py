@@ -5,7 +5,8 @@ import socket
 import pygame
 
 from maenneltest import Maenneltest
-from utils import recv_msg, send_msg, send_game, UPDATE_TIMEDELTA, MAX_FPS, PORT, datetime_to_str, str_to_datetime
+from utils.game import MAX_FPS, get_fps_from_clock_tick
+from utils.network import recv_msg, send_msg, send_game, UPDATE_TIMEDELTA, PORT, datetime_to_str, str_to_datetime
 
 
 def run_server():
@@ -25,11 +26,7 @@ def run_server():
 
     # main loop
     while True:
-        # Check FPS
-        clock.tick(MAX_FPS)
-        fps = clock.get_fps()
-        if fps == 0:  # PyGame clock needs some time for startup
-            continue
+        get_fps_from_clock_tick(MAX_FPS, clock)
 
         server_time = datetime.datetime.now()
 

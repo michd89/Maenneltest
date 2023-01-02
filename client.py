@@ -1,55 +1,15 @@
 import datetime
 import json
-import os
 import socket
 import sys
 import traceback
 
 import pygame
 
-from graphics import redraw_game_screen, redraw_login_menu
-from utils import join_game, MAX_FPS, UPDATE_TIMEDELTA, send_msg, recv_msg, recv_game, PORT, str_to_datetime, \
+from utils.graphics import redraw_game_screen, redraw_login_menu
+from utils.game import MAX_FPS, get_fps_from_clock_tick, handle_line_typing, get_move, load_sounds
+from utils.network import join_game, UPDATE_TIMEDELTA, send_msg, recv_msg, recv_game, PORT, str_to_datetime, \
     datetime_to_str
-
-
-# TODO: Find solution for handling special characters and keys when executed as exe
-# exe seems to use encoding for english keyboard layout
-def handle_line_typing(event, text_in, max_len=None):
-    allowed_symbols = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-. '
-    text_out = text_in
-    pressed = pygame.key.get_pressed()
-    if pressed[pygame.K_BACKSPACE]:
-        text_out = text_out[:-1]
-    else:
-        try:
-            ch = chr(event.key)
-        except:
-            ch = ''
-        if pressed[pygame.K_RSHIFT] or pressed[pygame.K_LSHIFT]:
-            ch = ch.upper()
-        if pressed[pygame.K_KP_ENTER] or pressed[pygame.K_RETURN]:
-            text_out += '\r'
-        if not max_len or len(text_out) < max_len:
-            if ch in allowed_symbols:
-                text_out = text_out + ch
-            if ch == '/':  # Catch '-' button input when executed as exe
-                text_out = text_out + '-'
-    return text_out
-
-
-def get_move(pressed):
-    acc_x = 0
-    acc_y = 0
-    if pressed[pygame.K_RIGHT]:
-        acc_x += 1
-    if pressed[pygame.K_LEFT]:
-        acc_x -= 1
-    if pressed[pygame.K_UP]:
-        acc_y -= 1
-    if pressed[pygame.K_DOWN]:
-        acc_y += 1
-
-    return acc_x, acc_y
 
 
 def main():
@@ -71,29 +31,10 @@ def main():
     run = True
     enter_pressed = False
     clock = pygame.time.Clock()
-
-    pygame.mixer.set_num_channels(100)
-    sounds_dir = 'sounds'
-    sound_name = 'arcade-rising.wav'
-    # TODO WICHTIG: https://stackoverflow.com/a/41989994
-    # Und: https://stackoverflow.com/a/42615559
-    if getattr(sys, 'frozen', False):  # exe
-        path = sys.executable  # with client.exe as last entry
-        path_list = path.split(os.sep)
-        if path_list[-1:] != os.sep:  # Since C: is valid as well as C:\
-            path_list[0] += os.sep
-        path = os.path.join(*path_list[:-2], sounds_dir, sound_name)  # remove "exes" and client.exe
-        print(path)
-        test_sound = pygame.mixer.Sound(path)
-    else:  # py
-        test_sound = pygame.mixer.Sound(os.path.join(sounds_dir, sound_name))
+    # test_sound = load_sounds()
 
     while run:
-        # Check FPS
-        clock.tick(MAX_FPS)
-        fps = clock.get_fps()
-        if fps == 0:  # PyGame clock needs some time for startup
-            continue
+        fps = get_fps_from_clock_tick(MAX_FPS, clock)
         step_time = MAX_FPS / fps
 
         # User entered data, program tries to log in
@@ -230,14 +171,13 @@ def main():
                 _, _, _, cmd_step_time, x, y = game_msg
                 game.move_player(nickname, cmd_step_time, x, y)
 
-            # print(game.players['Anonym'].pos_x)
-
         # Graphics
         if run:
             if not logged_in:
                 redraw_login_menu(host, nickname, entered_host, entered_name)
             else:
                 redraw_game_screen(game)
+                print(game.players['Anonym'].pos_x)
 
 
 def my_except_hook(exctype, value, tb):

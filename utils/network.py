@@ -8,7 +8,7 @@ RECV_SIZE = 4096
 
 PORT = 50000
 
-MAX_FPS = 60
+
 UPDATE_TIME = 100  # in ms
 UPDATE_TIMEDELTA = datetime.timedelta(milliseconds=UPDATE_TIME)
 
