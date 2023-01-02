@@ -1,11 +1,15 @@
+import datetime
+import json
 import os
+import socket
 import sys
 import traceback
 
 import pygame
 
 from graphics import redraw_game_screen, redraw_login_menu
-from utils import join_game, send
+from utils import join_game, MAX_FPS, UPDATE_TIMEDELTA, send_msg, recv_msg, recv_game, PORT, str_to_datetime, \
+    datetime_to_str
 
 
 # TODO: Find solution for handling special characters and keys when executed as exe
@@ -55,16 +59,17 @@ def main():
 
     client_sock = None
     host = ''
-    port = 50000
     entered_host = False
     nickname = ''
     entered_name = False
     logged_in = False
-    game = None  # For suppressing warning
+    client_time = None
+    last_send = None
+    latest_processed_state = None
+    unprocessed_commands = []
+    game = None
     run = True
     enter_pressed = False
-    get_interval = 6
-    game_step = get_interval
     clock = pygame.time.Clock()
 
     pygame.mixer.set_num_channels(100)
@@ -84,35 +89,31 @@ def main():
         test_sound = pygame.mixer.Sound(os.path.join(sounds_dir, sound_name))
 
     while run:
-        clock.tick(60)
+        # Check FPS
+        clock.tick(MAX_FPS)
+        fps = clock.get_fps()
+        if fps == 0:  # PyGame clock needs some time for startup
+            continue
+        step_time = MAX_FPS / fps
 
+        # User entered data, program tries to log in
         if entered_host and entered_name and not logged_in:
-            client_sock = join_game((host, port), nickname)
-            logged_in = True
-            if client_sock == 'NOPE':
-                print('NOPE')
-                pygame.quit()
-                break
-            if not client_sock:
+            response = join_game((host, PORT), nickname)
+            if not response:
                 print('No client')
                 pygame.quit()
                 break
-
-        # Get current game state before handling user input
-        if logged_in:
-            try:
-                if game_step == get_interval:
-                    # Update game state from server
-                    game = send(client_sock, (host, port), 'GET')
-                    game_step = 1
-                else:
-                    # Interpolate positions for smoother movement
-                    game.update_players()  # Locally
-                    game_step += 1
-            except Exception as e:
-                print("Couldn't get game")
-                print(e)
+            elif response == 'NOPE':
+                print('NOPE')
+                pygame.quit()
                 break
+            else:  # OK
+                client_sock, client_time = response
+                client_time = str_to_datetime(client_time)
+                last_send = client_time
+                game = recv_game(client_sock)
+                latest_processed_state = (game.players[nickname].pos_x, game.players[nickname].pos_y)
+                logged_in = True
 
         # Handle user input
         # Handle typing
@@ -121,6 +122,7 @@ def main():
                 pygame.quit()
                 run = False
 
+            # TODO: Kann man an dieser Stelle noch rumtippen, während der Client versucht, beizutreten?
             if not logged_in:
                 if event.type == pygame.KEYDOWN:
                     if not entered_host:
@@ -138,7 +140,7 @@ def main():
                         if len(nickname) <= 21 and nickname[-1:] == '\r':
                             nickname = nickname[:-1]
                             if not nickname:
-                                nickname = 'Namenloser Gust'
+                                nickname = 'Anonym'
                             entered_name = True
                         elif len(nickname) == 21 and nickname[-1:] != '\r':
                             nickname = nickname[:-1]
@@ -160,21 +162,81 @@ def main():
         if logged_in and run:
             pressed = pygame.key.get_pressed()
             acc_x, acc_y = get_move(pressed)
-            # Hier noch ein lokales Update der rate-Werte?
-            # game.move_player(nickname, acc_x, acc_y)
-            # game.update_players()
-            if game_step != get_interval:
-                game.players[nickname].rate_x = acc_x
-                game.players[nickname].rate_y = acc_y
 
-            send(client_sock, (host, port), 'MOVE {} {} {}'.format(nickname, acc_x, acc_y))
+            # Just advance client time here instead of catching special cases
+            # TODO: See what happens here. Doesn't occour every time
+            client_time = client_time + datetime.timedelta(milliseconds=1000/fps)
+            client_time_string = datetime_to_str(client_time)
+
+            # Handle gameplay related pressed keys
+            unprocessed_commands.append(['MOVE', client_time_string, nickname, step_time, acc_x, acc_y])
+            # Sort for the case the server set the local time backwards
+            unprocessed_commands = sorted(unprocessed_commands, key=lambda d: d[1])
+
+            # Send client inputs to server
+            if client_time - last_send >= UPDATE_TIMEDELTA:
+                msg = json.dumps(unprocessed_commands)
+                print('msg size: ' + str(sys.getsizeof(msg)))
+                send_msg(client_sock, (host, PORT), msg)
+                last_send = client_time
+
+            # Receive messages from server
+            command_data = []
+            game_data = []
+            while True:
+                try:
+                    # Use game state with latest time stamp (if more than one is received)
+                    server_msg, _ = recv_msg(client_sock)
+                    try:
+                        server_msg = json.loads(server_msg)
+                        if server_msg[0] == 'GAME':
+                            game_data.append(server_msg)
+                    # TODO: Improve implementation of this
+                    except json.decoder.JSONDecodeError:
+                        pass
+                    # if server_msg.startswith('PING'):
+                    #     command_data.append(server_msg)
+                except socket.error:
+                    # TODO: Differentiate between "nothing received" and an "actual error"
+                    break
+
+            # Compute command messages
+            for command_msg in command_data:
+                pass
+
+            # Compute game related messages
+            if game_data:
+                # Sort by server time just in case the messages didn't come in order
+                game_data = sorted(game_data, key=lambda d: d[1])
+                # for game_msg in game_data:  # Später
+                # if game_msg[0] == 'GAME':  # Später
+                game_msg = game_data[-1]  # Latest processed input
+                _, server_time, last_time_stamp, poses = game_msg
+                client_time = str_to_datetime(server_time)
+
+                # Insert player state (note: Still Client Side Prediction only)
+                for playername, pos in poses.items():
+                    if playername == nickname:
+                        latest_processed_state = (pos[0], pos[1])
+
+                # Discard processed commands
+                unprocessed_commands = [cmd for cmd in unprocessed_commands if cmd[1] > last_time_stamp]
+
+            # Recalculate all remaining unprocessed inputs
+            # Start with state of last processed input
+            game.players[nickname].pos_x = latest_processed_state[0]
+            game.players[nickname].pos_y = latest_processed_state[1]
+            for game_msg in unprocessed_commands:
+                _, _, _, cmd_step_time, x, y = game_msg
+                game.move_player(nickname, cmd_step_time, x, y)
+
+            # print(game.players['Anonym'].pos_x)
 
         # Graphics
         if run:
             if not logged_in:
                 redraw_login_menu(host, nickname, entered_host, entered_name)
             else:
-                print(game.players.get(nickname).pos_y)
                 redraw_game_screen(game)
 
 

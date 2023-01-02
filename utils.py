@@ -1,18 +1,40 @@
+import datetime
 import pickle
 import socket
+import time
 
 ENCODING = 'utf-8'
 RECV_SIZE = 4096
 
+PORT = 50000
 
-def send_msg(sock, addr, msg, blocking=False):
+MAX_FPS = 60
+UPDATE_TIME = 100  # in ms
+UPDATE_TIMEDELTA = datetime.timedelta(milliseconds=UPDATE_TIME)
+
+DATE_FORMAT = '%Y%d%m%H%M%S%f'
+
+
+def str_to_datetime(date_string):
+    return datetime.datetime.strptime(date_string, DATE_FORMAT)
+
+
+def datetime_to_str(date_time):
+    return datetime.datetime.strftime(date_time, DATE_FORMAT)
+
+
+def send_msg(sock, addr, msg, blocking=False, sim_latency=None):
     sock.setblocking(blocking)
+    if sim_latency:  # https://stackoverflow.com/a/62456696
+        time.sleep(sim_latency)
     sock.sendto(msg.encode(ENCODING), addr)
 
 
-def recv_msg(sock, blocking=False):
+def recv_msg(sock, blocking=False, sim_latency=None):
     try:
         sock.setblocking(blocking)
+        if sim_latency:  # https://stackoverflow.com/a/62456696
+            time.sleep(sim_latency)
         msg, addr = sock.recvfrom(RECV_SIZE)
         msg = msg.decode(ENCODING)
         return msg, addr
