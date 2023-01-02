@@ -104,8 +104,6 @@ def main():
             pressed = pygame.key.get_pressed()
             acc_x, acc_y = get_move(pressed)
 
-            # Just advance client time here instead of catching special cases
-            # TODO: See what happens here. Doesn't occour every time
             client_time = client_time + datetime.timedelta(milliseconds=1000/fps)
             client_time_string = datetime_to_str(client_time)
 
