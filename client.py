@@ -117,7 +117,6 @@ def main():
             # Send client inputs to server
             if client_time - last_send >= UPDATE_TIMEDELTA:
                 msg = json.dumps(unprocessed_commands)
-                print('msg size: ' + str(sys.getsizeof(msg)))
                 send_msg(client_sock, (host, PORT), msg)
                 last_send = client_time
 
@@ -177,7 +176,6 @@ def main():
                 redraw_login_menu(host, nickname, entered_host, entered_name)
             else:
                 redraw_game_screen(game)
-                print(game.players['Anonym'].pos_x)
 
 
 def my_except_hook(exctype, value, tb):

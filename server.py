@@ -69,8 +69,6 @@ def run_server():
             except socket.error:  # Nothing received
                 # TODO: Differentiate between "nothing received" and an "actual error"
                 break
-        #  print(game_msgs)
-        # print('game msgs: ' + str(len(game_msgs)))
         # Process client commands (no actual player input)
         for message, address in command_msgs:
             if message.startswith('JOIN'):
@@ -98,7 +96,6 @@ def run_server():
             time_stamp = str_to_datetime(time_stamp)
             # Just in case that older client messages arrived later
             if nickname not in last_time_stamp.keys() or time_stamp > last_time_stamp[nickname]:
-                print('move player')
                 game.move_player(nickname, step_time, x, y)
                 last_time_stamp[nickname] = time_stamp
 
@@ -124,7 +121,6 @@ def run_server():
                     game_msg = ['GAME', server_time_string, last_time_stamp_string, poses]
                     msg = json.dumps(game_msg)
                     send_msg(server_sock, address, msg)
-                    # print('send')
             last_send = server_time
 
         # TODO: Ping implementieren
