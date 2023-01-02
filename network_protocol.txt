@@ -1,0 +1,38 @@
+General messages
+* PONG
+** Sends a ping response after receiving a PING message
+** 'PONG'
+* PING
+** Sends a ping request, expects PONG as response
+** 'PING'
+
+Server messages
+* GAME
+** Sends the game state
+** 'GAME [server_time, last_time_stamp, poses]'
+*** server_time: Current server time for synchronization with client
+*** last_time_stamp: The time stamp of the last processed command for particular client
+*** poses: dict of {'player1': [x1, y1], 'player2': [x2, y2], ...}
+* NOPE
+** Refuses the JOIN request if the desired client name is already taken
+** 'NOPE'
+* OK
+** Adds the client who sent JOIN
+** 'OK server_time'
+*** server_time: Current server time for synchronization with client
+
+Client messages
+* JOIN
+** Tries to join the game with the given nickname. Is answered with OK if successful, else with NOPE
+** 'JOIN nickname'
+*** nickname: Desired client name. Must not be already taken in the game
+* MOVE
+** TODO: Rename into e.g. CMD, BUTTONS, ...
+** Describes the player movement in the current frame (can be bundled in a list)
+** 'MOVE client_time nickname step_time acc_x acc_y'
+*** client_time: The command's time stamp given by the client
+*** nickname: Name of the moving player
+*** step_time: Simulation time of the input
+*** acc_x: Acceleration on the x-axis. '+' (right), '-' (left), '.' (none)
+*** acc_y: Acceleration on the y-axis. '+' (down), '-' (up), '.' (none)
+* TODO: Knöpfe von Client zum Server?
