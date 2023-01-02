@@ -73,3 +73,8 @@ def load_sounds():
         test_sound = pygame.mixer.Sound(os.path.join(sounds_dir, sound_name))
 
     return test_sound
+
+
+def quit_pygame_and_exit():
+    pygame.quit()
+    exit()

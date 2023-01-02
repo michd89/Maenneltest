@@ -7,7 +7,7 @@ import traceback
 import pygame
 
 from utils.graphics import redraw_game_screen, redraw_login_menu
-from utils.game import MAX_FPS, get_fps_from_clock_tick, handle_line_typing, get_move, load_sounds
+from utils.game import MAX_FPS, get_fps_from_clock_tick, handle_line_typing, get_move, load_sounds, quit_pygame_and_exit
 from utils.network import join_game, UPDATE_TIMEDELTA, send_msg, recv_msg, recv_game, PORT, str_to_datetime, \
     datetime_to_str
 
@@ -42,12 +42,11 @@ def main():
             response = join_game((host, PORT), nickname)
             if not response:
                 print('No client')
-                pygame.quit()
-                break
+                quit_pygame_and_exit()
             elif response == 'NOPE':
                 print('NOPE')
-                pygame.quit()
-                break
+                quit_pygame_and_exit()
+            # TODO: Nur diese Fälle?
             else:  # OK
                 client_sock, client_time = response
                 client_time = str_to_datetime(client_time)
@@ -60,8 +59,7 @@ def main():
         # Handle typing
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
+                quit_pygame_and_exit()
 
             # TODO: Kann man an dieser Stelle noch rumtippen, während der Client versucht, beizutreten?
             if not logged_in:
@@ -90,8 +88,7 @@ def main():
                     pressed = pygame.key.get_pressed()
                     if pressed[pygame.K_RETURN]:
                         if not enter_pressed:
-                            pygame.quit()
-                            exit()
+                            quit_pygame_and_exit()
                             # pygame.mixer.Sound.play(test_sound)
                             enter_pressed = True
                 if event.type == pygame.KEYUP:
