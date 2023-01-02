@@ -61,7 +61,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                run = False
+                exit()
 
             # TODO: Kann man an dieser Stelle noch rumtippen, während der Client versucht, beizutreten?
             if not logged_in:
@@ -100,7 +100,7 @@ def main():
                         enter_pressed = False
 
         # Handle pressed keys
-        if logged_in and run:
+        if logged_in:
             pressed = pygame.key.get_pressed()
             acc_x, acc_y = get_move(pressed)
 
