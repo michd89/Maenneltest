@@ -23,18 +23,14 @@ def datetime_to_str(date_time):
     return datetime.datetime.strftime(date_time, DATE_FORMAT)
 
 
-def send_msg(sock, addr, msg, blocking=False, sim_latency=None):
+def send_msg(sock, addr, msg, blocking=False):
     sock.setblocking(blocking)
-    if sim_latency:  # https://stackoverflow.com/a/62456696
-        time.sleep(sim_latency)
     sock.sendto(msg.encode(ENCODING), addr)
 
 
-def recv_msg(sock, blocking=False, sim_latency=None):
+def recv_msg(sock, blocking=False):
     try:
         sock.setblocking(blocking)
-        if sim_latency:  # https://stackoverflow.com/a/62456696
-            time.sleep(sim_latency)
         msg, addr = sock.recvfrom(RECV_SIZE)
         msg = msg.decode(ENCODING)
         return msg, addr
