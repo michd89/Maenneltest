@@ -1,7 +1,6 @@
 import datetime
 import pickle
 import socket
-import time
 
 ENCODING = 'utf-8'
 RECV_SIZE = 4096
