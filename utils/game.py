@@ -77,4 +77,4 @@ def load_sounds():
 
 def quit_pygame_and_exit():
     pygame.quit()
-    exit()
+    sys.exit()
