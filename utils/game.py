@@ -55,12 +55,15 @@ def get_move(pressed):
 
 
 def load_sounds():
+    # https://stackoverflow.com/a/18513365
+    pygame.mixer.pre_init(44100, -16, 1, 512)
+
     pygame.mixer.set_num_channels(100)
     sounds_dir = 'sounds'
     sound_name = 'arcade-rising.wav'
 
-    # TODO WICHTIG: https://stackoverflow.com/a/41989994
-    # Und: https://stackoverflow.com/a/42615559
+    # https://stackoverflow.com/a/41989994
+    # https://stackoverflow.com/a/42615559
     if getattr(sys, 'frozen', False):  # exe
         path = sys.executable  # with client.exe as last entry
         path_list = path.split(os.sep)
