@@ -13,8 +13,6 @@ from utils.network import join_game, UPDATE_TIMEDELTA, send_msg, recv_msg, recv_
 
 
 def main():
-    # TODO WICHTIG: https://stackoverflow.com/a/18513365
-    pygame.mixer.pre_init(44100, -16, 1, 512)
     pygame.init()
 
     client_sock = None
@@ -56,11 +54,11 @@ def main():
                 logged_in = True
 
         # Handle user input
-        # Handle typing
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit_pygame_and_exit()
 
+            # Handle typing (single keydowns)
             # TODO: Kann man an dieser Stelle noch rumtippen, während der Client versucht, beizutreten?
             if not logged_in:
                 if event.type == pygame.KEYDOWN:
@@ -83,6 +81,7 @@ def main():
                             entered_name = True
                         elif len(nickname) == 21 and nickname[-1:] != '\r':
                             nickname = nickname[:-1]
+            # Handle typing (single keydowns) of single sound (or exiting)
             else:
                 if event.type == pygame.KEYDOWN:
                     pressed = pygame.key.get_pressed()
@@ -96,7 +95,7 @@ def main():
                     if not pressed[pygame.K_RETURN]:
                         enter_pressed = False
 
-        # Handle pressed keys
+        # Handle pressed keys (constant pressing of keys)
         if logged_in:
             pressed = pygame.key.get_pressed()
             acc_x, acc_y = get_move(pressed)
@@ -120,7 +119,6 @@ def main():
             game_data = []
             while True:
                 try:
-                    # Use game state with latest time stamp (if more than one is received)
                     server_msg, _ = recv_msg(client_sock)
                     try:
                         server_msg = json.loads(server_msg)
@@ -128,9 +126,8 @@ def main():
                             game_data.append(server_msg)
                     # TODO: Improve implementation of this
                     except json.decoder.JSONDecodeError:
-                        pass
-                    # if server_msg.startswith('PING'):
-                    #     command_data.append(server_msg)
+                        if server_msg.startswith('PING'):
+                            command_data.append(server_msg)
                 except socket.error:
                     # TODO: Differentiate between "nothing received" and an "actual error"
                     break
@@ -143,18 +140,18 @@ def main():
             if game_data:
                 # Sort by server time just in case the messages didn't come in order
                 game_data = sorted(game_data, key=lambda d: d[1])
-                # for game_msg in game_data:  # Später
-                # if game_msg[0] == 'GAME':  # Später
-                game_msg = game_data[-1]  # Latest processed input
-                _, server_time, last_time_stamp, poses = game_msg
+                for game_msg in game_data:
+                    # TODO
+                    # if game_msg[0] == 'GAME':  # Später
+                    _, server_time, last_time_stamp, poses = game_msg
+
+                    # Insert player state (note: Still Client Side Prediction only)
+                    for playername, pos in poses.items():
+                        if playername == nickname:
+                            latest_processed_state = (pos[0], pos[1])
+
                 client_time = str_to_datetime(server_time)
-
-                # Insert player state (note: Still Client Side Prediction only)
-                for playername, pos in poses.items():
-                    if playername == nickname:
-                        latest_processed_state = (pos[0], pos[1])
-
-                # Discard processed commands
+                # Keep leftover unprocesed commands only
                 unprocessed_commands = [cmd for cmd in unprocessed_commands if cmd[1] > last_time_stamp]
 
             # Recalculate all remaining unprocessed inputs
