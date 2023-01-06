@@ -71,6 +71,7 @@ def run_server():
                 break
         # Process client commands (no actual player input)
         for message, address in command_msgs:
+            # TODO: Gibt es nur JOIN?
             if message.startswith('JOIN'):
                 nickname = message.split(' ', 1)[1]
                 if game.add_player(nickname):
@@ -88,10 +89,11 @@ def run_server():
         # Just in case the messages didn't come in order
         # Will become even more important when player interaction is included
         game_msgs = sorted(game_msgs, key=lambda d: d[1])
-        # last_time_stamp = dict()  # Lag das Problem an dieser Stelle oder woanders? Ist es gelöst?
 
         # Simulate movements based on inputs and server FPS
+        print(len(game_msgs))
         for game_msg in game_msgs:
+            # TODO: Gibt es nur MOVE?
             _, time_stamp, nickname, step_time, x, y = game_msg
             time_stamp = str_to_datetime(time_stamp)
             # Just in case that older client messages arrived later
