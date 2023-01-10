@@ -7,7 +7,8 @@ import traceback
 import pygame
 
 from utils.graphics import redraw_game_screen, redraw_login_menu
-from utils.game import MAX_FPS, get_fps_from_clock_tick, handle_line_typing, get_move, load_sounds, quit_pygame_and_exit
+from utils.game import MAX_FPS, get_fps_from_clock_tick, handle_line_typing, get_move, load_sounds, \
+    quit_pygame_and_exit, leave_game
 from utils.network import join_game, UPDATE_TIMEDELTA, send_msg, recv_msg, recv_game, PORT, str_to_datetime, \
     datetime_to_str
 
@@ -56,7 +57,7 @@ def main():
         # Handle user input
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                quit_pygame_and_exit()
+                leave_game(client_sock, host, PORT, nickname, logged_in)
 
             # Handle typing (single keydowns)
             # TODO: Kann man an dieser Stelle noch rumtippen, während der Client versucht, beizutreten?
@@ -87,7 +88,7 @@ def main():
                     pressed = pygame.key.get_pressed()
                     if pressed[pygame.K_RETURN]:
                         if not enter_pressed:
-                            quit_pygame_and_exit()
+                            leave_game(client_sock, host, PORT, nickname)
                             # pygame.mixer.Sound.play(test_sound)
                             enter_pressed = True
                 if event.type == pygame.KEYUP:

@@ -3,6 +3,8 @@ import sys
 
 import pygame
 
+from utils.network import send_msg
+
 MAX_FPS = 60
 
 
@@ -76,6 +78,12 @@ def load_sounds():
         test_sound = pygame.mixer.Sound(os.path.join(sounds_dir, sound_name))
 
     return test_sound
+
+
+def leave_game(client_sock, host, port, nickname, logged_in=True):
+    if logged_in:
+        send_msg(client_sock, (host, port), 'QUIT ' + nickname)
+    quit_pygame_and_exit()
 
 
 def quit_pygame_and_exit():

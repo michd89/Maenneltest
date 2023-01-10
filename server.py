@@ -71,7 +71,6 @@ def run_server():
                 break
         # Process client commands (no actual player input)
         for message, address in command_msgs:
-            # TODO: Gibt es nur JOIN?
             if message.startswith('JOIN'):
                 nickname = message.split(' ', 1)[1]
                 if game.add_player(nickname):
@@ -84,6 +83,10 @@ def run_server():
                 else:
                     print('{nickname} already exsists'.format(nickname=nickname))
                     send_msg(server_sock, address, 'NOPE')
+            elif message.startswith('QUIT'):
+                nickname = message.split(' ', 1)[1]
+                print('{nickname} left the game'.format(nickname=nickname))
+                game.delete_player(nickname)
 
         # Sort client input by time stamp
         # Just in case the messages didn't come in order
