@@ -1,10 +1,14 @@
 General messages
 * PONG
 ** Sends a ping response after receiving a PING message
-** 'PONG'
+** 'PONG server_time nickname'
+*** server_time: Time stamp the client received from the server
+*** nickname: Name of the responding client
 * PING
 ** Sends a ping request, expects PONG as response
-** 'PING'
+** 'PING server_time'
+*** server_time: Current server time which the client is supposed to send back when sending PONG
+**** For preventing confusion if a PING or PONG message isn't received
 
 Server messages
 * GAME
@@ -35,4 +39,3 @@ Client messages
 *** step_time: Simulation time of the input
 *** acc_x: Acceleration on the x-axis. '+' (right), '-' (left), '.' (none)
 *** acc_y: Acceleration on the y-axis. '+' (down), '-' (up), '.' (none)
-* TODO: Knöpfe von Client zum Server?

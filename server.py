@@ -6,7 +6,8 @@ import pygame
 
 from maenneltest import Maenneltest
 from utils.game import MAX_FPS, get_fps_from_clock_tick
-from utils.network import recv_msg, send_msg, send_game, UPDATE_TIMEDELTA, PORT, datetime_to_str, str_to_datetime
+from utils.network import recv_msg, send_msg, send_game, UPDATE_TIMEDELTA, PORT, datetime_to_str, str_to_datetime, \
+    PING_TIMEDELTA
 
 
 def run_server():
@@ -16,7 +17,12 @@ def run_server():
     clock = pygame.time.Clock()
     server_time = datetime.datetime.now()
     last_send = server_time
+    last_ping = server_time
+
+    # TODO: Make class for clients containing these information
     clients = dict()
+    ping_times = dict()
+    pings = dict()
 
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     server_sock.bind((host, PORT))
@@ -83,10 +89,19 @@ def run_server():
                 else:
                     print('{nickname} already exsists'.format(nickname=nickname))
                     send_msg(server_sock, address, 'NOPE')
+            elif message.startswith('PONG'):
+                ping_server_time = str_to_datetime(message.split()[1])
+                pong_nickname = ' '.join(message.split()[2:])
+                if ping_server_time == ping_times[pong_nickname]:
+                    pings[pong_nickname] = round((server_time - ping_server_time).total_seconds() * 1000)
+
             elif message.startswith('QUIT'):
                 nickname = message.split(' ', 1)[1]
                 print('{nickname} left the game'.format(nickname=nickname))
                 game.delete_player(nickname)
+                del clients[nickname]
+                del ping_times[nickname]
+                del pings[nickname]
 
         # Sort client input by time stamp
         # Just in case the messages didn't come in order
@@ -94,7 +109,7 @@ def run_server():
         game_msgs = sorted(game_msgs, key=lambda d: d[1])
 
         # Simulate movements based on inputs and server FPS
-        print(len(game_msgs))
+        # print(len(game_msgs))
         for game_msg in game_msgs:
             # TODO: Gibt es nur MOVE?
             _, time_stamp, nickname, step_time, x, y = game_msg
@@ -128,11 +143,18 @@ def run_server():
                     send_msg(server_sock, address, msg)
             last_send = server_time
 
-        # TODO: Ping implementieren
-        # Einmal je zwei (drei, ...?) Sekunden PING schicken
-        # Clients schicken PONG zurück
-        # Speichern und den Clients zum Anzeigen mitgeben
-        # Vielleicht oben beim Broadcast mit
+        # Ping
+        if server_time - last_ping >= PING_TIMEDELTA:
+            for nickname, address in clients.items():
+                server_time_string = datetime_to_str(server_time)
+                msg = 'PING ' + server_time_string
+                send_msg(server_sock, address, msg)
+                ping_times[nickname] = server_time
+                last_ping = server_time
+
+            # Test print
+            for nickname, ping in pings.items():
+                print('{nickname} {ping}'.format(nickname=nickname, ping=str(ping)))
 
 
 if __name__ == '__main__':

@@ -7,9 +7,10 @@ RECV_SIZE = 4096
 
 PORT = 50000
 
-
 UPDATE_TIME = 100  # in ms
 UPDATE_TIMEDELTA = datetime.timedelta(milliseconds=UPDATE_TIME)
+PING_TIME = 2000  # in ms
+PING_TIMEDELTA = datetime.timedelta(milliseconds=PING_TIME)
 
 DATE_FORMAT = '%Y%d%m%H%M%S%f'
 

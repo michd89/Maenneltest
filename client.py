@@ -135,7 +135,10 @@ def main():
 
             # Compute command messages
             for command_msg in command_data:
-                pass
+                if command_msg.startswith('PING'):
+                    ping_server_time = command_msg.split()[1]
+                    msg = 'PONG {pst} {nickname}'.format(pst=ping_server_time, nickname=nickname)
+                    send_msg(client_sock, (host, PORT), msg)
 
             # Compute game related messages
             if game_data:
