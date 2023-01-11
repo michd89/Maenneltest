@@ -133,10 +133,10 @@ def run_server():
             for nickname, address in clients.items():
                 # TODO: Probably use bytearray for better network performance?
 
-                # TODO: (server_time + Latenz) als Zeitstempel mitgeben
                 # There is no last time stamp if the client didn't send any inputs yet
                 if nickname in last_time_stamp.keys():
-                    server_time_string = datetime_to_str(server_time)
+                    latency = datetime.timedelta(milliseconds=round(pings[nickname]/2))
+                    server_time_string = datetime_to_str(server_time + latency)
                     last_time_stamp_string = datetime_to_str(last_time_stamp[nickname])
                     game_msg = ['GAME', server_time_string, last_time_stamp_string, poses]
                     msg = json.dumps(game_msg)
