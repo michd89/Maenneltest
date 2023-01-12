@@ -1,6 +1,6 @@
 from random import randint
 
-from global_values import WIDTH, HEIGHT
+from utils.global_values import WIDTH, HEIGHT
 
 
 class Player:

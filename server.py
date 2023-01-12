@@ -4,7 +4,7 @@ import socket
 
 import pygame
 
-from maenneltest import Maenneltest
+from utils.maenneltest import Maenneltest
 from utils.game import MAX_FPS, get_fps_from_clock_tick
 from utils.network import recv_msg, send_msg, send_game, UPDATE_TIMEDELTA, PORT, datetime_to_str, str_to_datetime, \
     PING_TIMEDELTA

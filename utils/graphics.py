@@ -1,6 +1,6 @@
 import pygame
 
-from global_values import WIDTH, HEIGHT
+from utils.global_values import WIDTH, HEIGHT
 
 BACKGROUND_COLOR = (200, 200, 200)
 BLACK = (0, 0, 0)
