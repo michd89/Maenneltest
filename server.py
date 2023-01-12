@@ -84,6 +84,7 @@ def run_server():
                     # Client uses this for initial time synchronization
                     send_msg(server_sock, address, 'OK ' + datetime_to_str(server_time))
                     clients[nickname] = address
+                    pings[nickname] = 0  # TODO: Das vielleicht beim Beitritt genauer bestimmen?
                     send_game(server_sock, address, game)
                     # TODO: Das müssen später dann auch die anderen Spieler mitkriegen
                 else:
@@ -102,6 +103,7 @@ def run_server():
                 del clients[nickname]
                 del ping_times[nickname]
                 del pings[nickname]
+                del last_time_stamp[nickname]
 
         # Sort client input by time stamp
         # Just in case the messages didn't come in order
