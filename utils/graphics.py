@@ -42,9 +42,6 @@ def redraw_login_menu(host, name, menu_state):
 
     pygame.display.update()
 
-    if menu_state == 'ERROR' or menu_state == 'NAME_TAKEN':
-        pygame.time.delay(3000)
-
 
 def redraw_game_screen(game):
     win.fill(BACKGROUND_COLOR)

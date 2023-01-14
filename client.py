@@ -96,6 +96,7 @@ def main():
             redraw_game_screen(client.game)
 
         if menu_state == 'ERROR' or menu_state == 'NAME_TAKEN':
+            pygame.time.delay(3000)
             quit_pygame_and_exit()
 
 
