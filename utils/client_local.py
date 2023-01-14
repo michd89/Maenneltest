@@ -2,7 +2,7 @@ import datetime
 import json
 import socket
 
-from utils.network import PORT, send_msg, recv_msg, str_to_datetime, UPDATE_TIMEDELTA, datetime_to_str
+from utils.network import PORT, send_msg, recv_msg, str_to_datetime, UPDATE_TIMEDELTA, datetime_to_str, recv_game
 
 
 class MaenneltestLocal:
@@ -19,6 +19,22 @@ class MaenneltestLocal:
 
     def send_msg(self, msg, blocking=False):
         send_msg(self.client_sock, (self.host, PORT), msg, blocking)
+
+    def try_connect(self, host, nickname):
+        response = self.join_game(host, nickname)
+        if not response:
+            print('No client')
+            return 'ERROR'
+        elif response == 'NOPE':
+            print('NOPE')
+            return 'NAME_TAKEN'
+        elif response == 'OK':
+            self.game = recv_game(self.client_sock)
+            self.latest_processed_state = (
+                self.game.players[self.nickname].pos_x,
+                self.game.players[self.nickname].pos_y
+            )
+            return 'INGAME'
 
     def join_game(self, host, nickname):
         try:

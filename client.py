@@ -6,7 +6,7 @@ import pygame
 from utils.client_local import MaenneltestLocal
 from utils.graphics import redraw_game_screen, redraw_login_menu
 from utils.game import MAX_FPS, get_fps_from_clock_tick, handle_line_typing, get_move, quit_pygame_and_exit
-from utils.network import send_msg, recv_game, PORT
+from utils.network import send_msg, PORT
 
 
 def main():
@@ -26,17 +26,7 @@ def main():
 
         # User entered data, program tries to log in
         if menu_state == 'CONNECTING':
-            response = client.join_game(host, nickname)
-            if not response:
-                print('No client')
-                menu_state = 'ERROR'
-            elif response == 'NOPE':
-                print('NOPE')
-                menu_state = 'NAME_TAKEN'
-            elif response == 'OK':
-                client.game = recv_game(client.client_sock)
-                client.latest_processed_state = (client.game.players[client.nickname].pos_x, client.game.players[client.nickname].pos_y)
-                menu_state = 'INGAME'
+            menu_state = client.try_connect(host, nickname)
 
         # Handle user input
         for event in pygame.event.get():
