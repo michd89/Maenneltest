@@ -5,7 +5,7 @@ import socket
 from utils.network import PORT, send_msg, recv_msg, str_to_datetime, UPDATE_TIMEDELTA, datetime_to_str, recv_game
 
 
-class MaenneltestLocal:
+class MaenneltestClientLocal:
     def __init__(self):
         self.client_sock = None
         self.host = ''

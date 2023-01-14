@@ -3,7 +3,7 @@ import traceback
 
 import pygame
 
-from utils.client_local import MaenneltestLocal
+from utils.client_local import MaenneltestClientLocal
 from utils.graphics import redraw_game_screen, redraw_login_menu
 from utils.game import MAX_FPS, get_fps_from_clock_tick, handle_line_typing, get_move, quit_pygame_and_exit
 
@@ -17,7 +17,7 @@ def main():
     menu_state = 'ENTER_HOST'  # ENTER_HOST, ENTER_NAME, CONNECTING, ERROR, NAME_TAKEN, INGAME
     enter_pressed = False
     clock = pygame.time.Clock()
-    client = MaenneltestLocal()
+    client = MaenneltestClientLocal()
 
     while True:
         fps = get_fps_from_clock_tick(MAX_FPS, clock)
