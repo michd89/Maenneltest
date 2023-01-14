@@ -79,8 +79,9 @@ def main():
                     if not pressed[pygame.K_RETURN]:
                         enter_pressed = False
 
-        # Handle pressed keys (constant pressing of keys)
+        # Let the actual game run
         if menu_state == 'INGAME':
+            # Handle pressed keys (constant pressing of keys)
             acc_x, acc_y = get_move(pygame.key.get_pressed())
 
             # Prepare data of current time step for the server
