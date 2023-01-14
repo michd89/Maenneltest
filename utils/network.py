@@ -52,13 +52,3 @@ def recv_game(sock, blocking=True):
     except socket.error:  # Nothing received
         raise socket.error
 
-
-# Send message to server and receive game
-def send(sock, addr, data):
-    try:
-        get = data.startswith('GET')
-        send_msg(sock, addr, data, blocking=get)
-        if get:
-            return recv_game(sock)
-    except socket.error as e:
-        print(e)
