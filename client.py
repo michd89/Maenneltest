@@ -30,7 +30,8 @@ def main():
         # Handle user input
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                client.quit()
+                if menu_state == 'INGAME':
+                    client.quit()
                 quit_pygame_and_exit()
 
             # Handle typing (single keydowns)
