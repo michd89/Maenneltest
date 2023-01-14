@@ -6,7 +6,6 @@ import pygame
 from utils.client_local import MaenneltestLocal
 from utils.graphics import redraw_game_screen, redraw_login_menu
 from utils.game import MAX_FPS, get_fps_from_clock_tick, handle_line_typing, get_move, quit_pygame_and_exit
-from utils.network import send_msg, PORT
 
 
 def main():
@@ -31,7 +30,7 @@ def main():
         # Handle user input
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                send_msg(client.client_sock, (host, PORT), 'QUIT ' + client.nickname)
+                client.quit()
                 quit_pygame_and_exit()
 
             # Handle typing (single keydowns)
@@ -60,7 +59,7 @@ def main():
                     pressed = pygame.key.get_pressed()
                     if pressed[pygame.K_RETURN]:
                         if not enter_pressed:
-                            send_msg(client.client_sock, (host, PORT), 'QUIT ' + client.nickname)
+                            client.quit()
                             quit_pygame_and_exit()
                             # pygame.mixer.Sound.play(test_sound)
                             enter_pressed = True
