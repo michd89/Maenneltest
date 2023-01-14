@@ -7,7 +7,8 @@ MAX_FPS = 60
 
 
 def get_fps_from_clock_tick(max_fps, clock):
-    fps = 0
+    clock.tick(max_fps)
+    fps = clock.get_fps()
     while fps == 0:  # PyGame clock needs some time for startup
         clock.tick(max_fps)
         fps = clock.get_fps()
