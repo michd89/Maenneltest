@@ -58,7 +58,7 @@ class Maenneltest:
         x = randint(10, self.win_width - 50)
         y = randint(10, self.win_height - 50)
         self.players[nickname] = Player(nickname, x, y)
-        return True
+        return self.players[nickname]
 
     def delete_player(self, nickname):
         if self.players.pop(nickname):
