@@ -7,6 +7,20 @@ class MaenneltestClientServer:
         self.ping_time = None
         self.last_time_stamp = None
 
+    @classmethod
+    def get_client_by_name(self, clients, nickname):
+        for client in clients:
+            if client.nickname == nickname:
+                return client
+        return None
+
+    @classmethod
+    def get_client_by_address(self, clients, address):
+        for client in clients:
+            if client.address == address:
+                return client
+        return None
+
     def add_player(self):
         pass
 

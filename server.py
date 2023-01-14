@@ -49,12 +49,7 @@ def run_server():
                 if type(client_msg) is list:
                     for msg in client_msg:
                         # Discard game messages from non-existing client
-                        client = None
-                        for c in clients:
-                            if c.address == client_addr:
-                                client = c
-                                break
-                        if client:
+                        if MaenneltestClientServer.get_client_by_address(clients, client_addr):
                             # Don't add duplicate player inputs to the game_msgs list
                             # because the client will repeatedly send unprocessed commands
                             new_time_and_name = (msg[1], msg[2])
@@ -86,19 +81,17 @@ def run_server():
                     send_msg(server_sock, address, 'NOPE')
             elif message.startswith('PONG'):
                 ping_server_time = str_to_datetime(message.split()[1])
-                pong_nickname = ' '.join(message.split()[2:])
-                for client in clients:
-                    if client.nickname == pong_nickname:
-                        if ping_server_time == client.ping_time:
-                            client.ping = round((server_time - ping_server_time).total_seconds() * 1000)
+                client = MaenneltestClientServer.get_client_by_name(clients, nickname)
+                if ping_server_time == client.ping_time:
+                    client.ping = round((server_time - ping_server_time).total_seconds() * 1000)
 
             elif message.startswith('QUIT'):
                 nickname = message.split(' ', 1)[1]
                 print('{nickname} left the game'.format(nickname=nickname))
                 if game.delete_player(nickname):
-                    for client in clients:
-                        if client.nickname == nickname:
-                            del client
+                    client = MaenneltestClientServer.get_client_by_name(clients, nickname)
+                    if client:
+                        del client
 
         # Sort client input by time stamp
         # Just in case the messages didn't come in order
