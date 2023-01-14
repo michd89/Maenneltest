@@ -11,17 +11,17 @@ win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Männeltest ihr Gusten")
 
 
-def redraw_login_menu(host, name, entered_host, entered_name, login_state='OK'):
+def redraw_login_menu(host, name, menu_state):
     win.fill(BACKGROUND_COLOR)
 
     message = 'Hostname oder IP (leer = localhost): {host}'.format(host=host)
-    if not entered_host and not entered_name:
+    if menu_state == 'ENTER_HOST':
         host = font_bold.render(message, True, BLACK)
     else:
         host = font_normal.render(message, True, BLACK)
 
     message = 'Name eingeben: {name}'.format(name=name)
-    if entered_host and not entered_name:
+    if menu_state == 'ENTER_NAME':
         name = font_bold.render(message, True, BLACK)
     else:
         name = font_normal.render(message, True, BLACK)
@@ -29,20 +29,20 @@ def redraw_login_menu(host, name, entered_host, entered_name, login_state='OK'):
     win.blit(host, (30, 250))
     win.blit(name, (30, 280))
 
-    if entered_host and entered_name:
+    if menu_state == 'CONNECTING':
         fertig = font_bold.render('Verbinde...', True, BLACK)
         win.blit(fertig, (100, 400))
 
-    if login_state == 'ERROR':
+    if menu_state == 'ERROR':
         error_text = font_bold.render('Fehler beim Verbinden!', True, BLACK)
         win.blit(error_text, (100, 450))
-    if login_state == 'NAME_TAKEN':
+    if menu_state == 'NAME_TAKEN':
         error_text = font_bold.render('Name schon vergeben!', True, BLACK)
         win.blit(error_text, (100, 450))
 
     pygame.display.update()
 
-    if login_state != 'OK':
+    if menu_state == 'ERROR' or menu_state == 'NAME_TAKEN':
         pygame.time.delay(3000)
 
 

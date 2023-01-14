@@ -3,8 +3,6 @@ import sys
 
 import pygame
 
-from utils.network import send_msg
-
 MAX_FPS = 60
 
 

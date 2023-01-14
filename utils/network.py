@@ -53,21 +53,6 @@ def recv_game(sock, blocking=True):
         raise socket.error
 
 
-def join_game(addr, nickname):
-    try:
-        client_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        client_sock.connect(addr)
-        send_msg(client_sock, addr, 'JOIN ' + nickname)
-        msg, addr = recv_msg(client_sock, blocking=True)
-        print('Response from server: {addr} {msg}'.format(addr=addr, msg=msg))
-        if msg.startswith('OK'):
-            return client_sock, msg.split()[1]
-        if msg == 'NOPE':
-            return 'NOPE'
-    except:
-        return None
-
-
 # Send message to server and receive game
 def send(sock, addr, data):
     try:
