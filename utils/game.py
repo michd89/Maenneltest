@@ -31,13 +31,37 @@ def handle_line_typing(event, text_in, max_len=None):
         if pressed[pygame.K_RSHIFT] or pressed[pygame.K_LSHIFT]:
             ch = ch.upper()
         if pressed[pygame.K_KP_ENTER] or pressed[pygame.K_RETURN]:
-            text_out += '\r'
+            return True, text_out
         if not max_len or len(text_out) < max_len:
             if ch in allowed_symbols:
                 text_out = text_out + ch
             if ch == '/':  # Catch '-' button input when executed as exe
                 text_out = text_out + '-'
-    return text_out
+    return False, text_out
+
+
+def handle_input_enter_host(event, host):
+    menu_state = 'ENTER_HOST'
+    if event.type == pygame.KEYDOWN:
+        pressed_enter, host = handle_line_typing(event, host)
+        if pressed_enter:
+            menu_state = 'ENTER_NAME'
+            if not host:
+                host = 'localhost'
+            elif host == ' ':
+                host = 'ip'
+    return menu_state, host
+
+
+def handle_input_enter_name(event, nickname):
+    menu_state = 'ENTER_NAME'
+    if event.type == pygame.KEYDOWN:
+        pressed_enter, nickname = handle_line_typing(event, nickname, 20)
+        if pressed_enter:
+            menu_state = 'CONNECTING'
+            if not nickname:
+                nickname = 'Anonym'
+    return menu_state, nickname
 
 
 def get_move(pressed):
