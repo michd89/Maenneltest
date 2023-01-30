@@ -19,7 +19,6 @@ def run_server():
     server_time = datetime.datetime.now()
     last_send = server_time
     last_ping = server_time
-    clients = []
 
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     server_sock.bind((host, PORT))
@@ -49,7 +48,7 @@ def run_server():
                 if type(client_msg) is list:
                     for msg in client_msg:
                         # Discard game messages from non-existing client
-                        if MaenneltestClientServer.get_client_by_address(clients, client_addr):
+                        if MaenneltestClientServer.get_client_by_address(client_addr):
                             # Don't add duplicate player inputs to the game_msgs list
                             # because the client will repeatedly send unprocessed commands
                             new_time_and_name = (msg[1], msg[2])
@@ -73,7 +72,7 @@ def run_server():
                     print('{nickname} joined game'.format(nickname=nickname))
                     # Client uses this for initial time synchronization
                     send_msg(server_sock, address, 'OK ' + datetime_to_str(server_time))
-                    clients.append(MaenneltestClientServer(address, nickname, new_player))
+                    MaenneltestClientServer.add_player(address, nickname, new_player)
                     send_game(server_sock, address, game)
                     # TODO: Das müssen später dann auch die anderen Spieler mitkriegen
                 else:
@@ -81,7 +80,7 @@ def run_server():
                     send_msg(server_sock, address, 'NOPE')
             elif message.startswith('PONG'):
                 ping_server_time = str_to_datetime(message.split()[1])
-                client = MaenneltestClientServer.get_client_by_name(clients, nickname)
+                client = MaenneltestClientServer.get_client_by_name(nickname)
                 if ping_server_time == client.ping_time:
                     client.ping = round((server_time - ping_server_time).total_seconds() * 1000)
 
@@ -89,9 +88,7 @@ def run_server():
                 nickname = message.split(' ', 1)[1]
                 print('{nickname} left the game'.format(nickname=nickname))
                 if game.delete_player(nickname):
-                    client = MaenneltestClientServer.get_client_by_name(clients, nickname)
-                    if client:
-                        del client
+                    MaenneltestClientServer.remove_player(nickname)
 
         # Sort client input by time stamp
         # Just in case the messages didn't come in order
@@ -105,10 +102,7 @@ def run_server():
             _, time_stamp, nickname, step_time, x, y = game_msg
             time_stamp = str_to_datetime(time_stamp)
             # Just in case that older client messages arrived later
-            client = None
-            for c in clients:
-                if c.nickname == nickname:
-                    client = c
+            client = MaenneltestClientServer.get_client_by_name(nickname)
             if not client.last_time_stamp or time_stamp > client.last_time_stamp:
                 game.move_player(nickname, step_time, x, y)
                 client.last_time_stamp = time_stamp
@@ -124,7 +118,7 @@ def run_server():
                 poses[nickname] = [player.pos_x, player.pos_y]
 
             # Send game state and individual last acknowledged time stamp to every client
-            for client in clients:
+            for client in MaenneltestClientServer.clients:
                 # TODO: Probably use bytearray for better network performance?
 
                 # There is no last time stamp if the client didn't send any inputs yet
@@ -139,7 +133,7 @@ def run_server():
 
         # Ping
         if server_time - last_ping >= PING_TIMEDELTA:
-            for client in clients:
+            for client in MaenneltestClientServer.clients:
                 server_time_string = datetime_to_str(server_time)
                 msg = 'PING ' + server_time_string
                 send_msg(server_sock, client.address, msg)
@@ -147,7 +141,7 @@ def run_server():
                 last_ping = server_time
 
             # Test print
-            for client in clients:
+            for client in MaenneltestClientServer.clients:
                 print('{nickname} {ping}'.format(nickname=client.nickname, ping=str(client.ping)))
 
 
