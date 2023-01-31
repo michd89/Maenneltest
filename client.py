@@ -41,9 +41,10 @@ def main():
                 menu_state, nickname = handle_input_enter_name(event, nickname)
             elif menu_state == 'INGAME':
                 pressed = pygame.key.get_pressed()
-                if pressed[pygame.K_RETURN]:
-                    client.quit()
-                    quit_pygame_and_exit()
+                if event.type == pygame.KEYDOWN:
+                    if pressed[pygame.K_RETURN]:
+                        client.quit()
+                        quit_pygame_and_exit()
                 acc_x, acc_y = get_move(pressed)
 
         # Let the actual game run
