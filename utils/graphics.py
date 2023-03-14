@@ -30,8 +30,8 @@ def redraw_login_menu(host, name, menu_state):
     win.blit(name, (30, 280))
 
     if menu_state == 'CONNECTING':
-        fertig = font_bold.render('Verbinde...', True, BLACK)
-        win.blit(fertig, (100, 400))
+        conn_text = font_bold.render('Verbinde...', True, BLACK)
+        win.blit(conn_text, (100, 400))
 
     if menu_state == 'ERROR':
         error_text = font_bold.render('Fehler beim Verbinden!', True, BLACK)
