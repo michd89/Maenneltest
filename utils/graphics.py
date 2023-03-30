@@ -7,8 +7,10 @@ BLACK = (0, 0, 0)
 pygame.font.init()
 font_normal = pygame.font.SysFont("courier", 18, bold=False)
 font_bold = pygame.font.SysFont("courier", 18, bold=True)
-win = pygame.display.set_mode((WIDTH, HEIGHT))
+# win = pygame.display.set_mode((WIDTH, HEIGHT))
+win = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED, vsync=1)
 pygame.display.set_caption("Männeltest ihr Gusten")
+surfaces = dict()
 
 
 def redraw_login_menu(host, name, menu_state):
@@ -46,9 +48,31 @@ def redraw_login_menu(host, name, menu_state):
 def redraw_game_screen(game):
     win.fill(BACKGROUND_COLOR)
 
+    # TODO: Testen (surfaces printen), wenn das Verlassen eines Spielers funktioniert
+    # Remove players who left
+    for surface_name in surfaces.keys():
+        found = False
+        for player_name, _ in game.players.items():
+            if surface_name == player_name:
+                found = True
+        if not found:
+            del surfaces['surface_name']
+
     for nickname, player in game.players.items():
-        pygame.draw.rect(win, player.color, (player.pos_x, player.pos_y, player.size, player.size), 0)
+        # Add new player to surface dict
+        if nickname not in surfaces.keys():
+            surfaces[nickname] = pygame.Surface((player.size, player.size))
+            surfaces[nickname].fill(BLACK)
+        rect = surfaces[nickname].get_rect()
+        x = int(round(player.pos_x))
+        y = int(round(player.pos_y))
+        rect.x = x
+        rect.y = y
+
+        # pygame.draw.rect(win, player.color, (x, y, player.size, player.size), 0)
+        win.blit(surfaces[nickname], rect)
+
         name = font_bold.render(nickname, True, player.color)
-        win.blit(name, (player.pos_x + player.size // 2 - name.get_width() // 2, player.pos_y - 20))
+        win.blit(name, (x + player.size // 2 - name.get_width() // 2, y - 20))
 
     pygame.display.update()
