@@ -65,7 +65,7 @@ def run_server():
                     send_game(server.server_sock, address, server.game)
                     # TODO: Das müssen später dann auch die anderen Spieler mitkriegen
                 else:
-                    print('{nickname} already exsists'.format(nickname=nickname))
+                    print('{nickname} already exists'.format(nickname=nickname))
                     send_msg(server.server_sock, address, 'NOPE')
             elif message.startswith('PONG'):
                 ping_server_time = str_to_datetime(message.split()[1])

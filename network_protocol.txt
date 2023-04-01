@@ -24,6 +24,8 @@ Server messages
 ** Adds the client who sent JOIN
 ** 'OK server_time'
 *** server_time: Current server time for synchronization with client
+* TODO: JOIN
+* TODO: QUIT
 
 Client messages
 * JOIN
