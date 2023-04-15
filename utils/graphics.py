@@ -48,18 +48,20 @@ def redraw_login_menu(host, name, menu_state):
 def redraw_game_screen(game):
     win.fill(BACKGROUND_COLOR)
 
-    # TODO: Testen (surfaces printen), wenn das Verlassen eines Spielers funktioniert
     # Remove players who left
+    players_left = []
     for surface_name in surfaces.keys():
         found = False
         for player_name, _ in game.players.items():
             if surface_name == player_name:
                 found = True
         if not found:
-            del surfaces['surface_name']
+            players_left.append(surface_name)
+    for player in players_left:
+        del surfaces[player]
 
     for nickname, player in game.players.items():
-        # Add new player to surface dict
+        # Add new players who joined
         if nickname not in surfaces.keys():
             surfaces[nickname] = pygame.Surface((player.size, player.size))
             surfaces[nickname].fill(BLACK)

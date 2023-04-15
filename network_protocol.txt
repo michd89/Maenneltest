@@ -24,8 +24,15 @@ Server messages
 ** Adds the client who sent JOIN
 ** 'OK server_time'
 *** server_time: Current server time for synchronization with client
-* TODO: JOIN
-* TODO: QUIT
+* JOIN
+** Notifies about a player joining the game
+** 'JOIN nickname x y'
+*** nickname: Name of the client about to be added locally
+*** x, y: Game state of the client about to be added locally
+* QUIT
+** Notifies about a player leaving the game
+** 'QUIT nickname'
+*** nickname: Name of the client about to be removed locally
 
 Client messages
 * JOIN

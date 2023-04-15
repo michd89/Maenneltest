@@ -63,7 +63,12 @@ def run_server():
                     # Client uses this for initial time synchronization
                     send_msg(server.server_sock, address, 'OK ' + datetime_to_str(server.server_time))
                     send_game(server.server_sock, address, server.game)
-                    # TODO: Das müssen später dann auch die anderen Spieler mitkriegen
+                    for client in server.clients:
+                        if client.nickname == nickname:
+                            continue
+                        # TODO: Könnte man das eleganter lösen, gerade wenn der State komplexer werden kann?
+                        msg = 'JOIN {nickname} {x} {y}'.format(nickname=nickname, x=server.game.players[nickname].pos_x, y=server.game.players[nickname].pos_y)
+                        send_msg(server.server_sock, client.address, msg)
                 else:
                     print('{nickname} already exists'.format(nickname=nickname))
                     send_msg(server.server_sock, address, 'NOPE')
@@ -72,11 +77,13 @@ def run_server():
                 client = server.get_client_by_address(address)
                 if ping_server_time == client.ping_time:
                     client.ping = round((server.server_time - ping_server_time).total_seconds() * 1000)
-
             elif message.startswith('QUIT'):
-                nickname = message.split(' ', 1)[1]  # TODO: Leerzeichen als Parameter gebraucht?
+                nickname = message.split(' ', 1)[1]
                 if server.remove_player(nickname):
                     print('{nickname} left the game'.format(nickname=nickname))
+                    for client in server.clients:
+                        msg = 'QUIT {nickname}'.format(nickname=nickname)
+                        send_msg(server.server_sock, client.address, msg)
 
         # Sort client input by time stamp
         # Just in case the messages didn't come in order

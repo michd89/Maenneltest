@@ -92,6 +92,10 @@ class MaenneltestClientLocal:
                 except json.decoder.JSONDecodeError:
                     if server_msg.startswith('PING'):
                         command_data.append(server_msg)
+                    if server_msg.startswith('JOIN'):
+                        command_data.append(server_msg)
+                    if server_msg.startswith('QUIT'):
+                        command_data.append(server_msg)
             except socket.error:
                 # TODO: Differentiate between "nothing received" and an "actual error"
                 break
@@ -102,6 +106,18 @@ class MaenneltestClientLocal:
                 ping_server_time = command_msg.split()[1]
                 msg = 'PONG {pst} {nickname}'.format(pst=ping_server_time, nickname=self.nickname)
                 self.send_msg(msg)
+
+            if command_msg.startswith('JOIN'):
+                msg_list = command_msg.split()
+                nickname = ' '.join(msg_list[1:-2])
+                x = int(msg_list[-2])
+                y = int(msg_list[-1])
+                self.game.add_player(nickname, x, y)
+                print('{nickname} joined the game'.format(nickname=nickname))
+            if command_msg.startswith('QUIT'):
+                nickname = command_msg.split(' ', 1)[1]
+                self.game.delete_player(nickname)
+                print('{nickname} left the game'.format(nickname=nickname))
 
         # Compute game related messages
         if game_data:

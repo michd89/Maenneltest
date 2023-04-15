@@ -52,11 +52,13 @@ class Maenneltest:
     #     for _, player in self.players.items():
     #         self.move_player(player, player.rate_x, player.rate_y)
 
-    def add_player(self, nickname):
+    def add_player(self, nickname, x=None, y=None):
         if self.players.get(nickname):
             return False
-        x = randint(10, self.win_width - 50)
-        y = randint(10, self.win_height - 50)
+        if not x:
+            x = randint(10, self.win_width - 50)
+        if not y:
+            y = randint(10, self.win_height - 50)
         self.players[nickname] = Player(nickname, x, y)
         return self.players[nickname]
 
